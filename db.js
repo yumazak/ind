@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 const app = express();
 app.use(express.json()); // リクエストボディのJSONを解析するため
 app.use(cors());
+const UNIQUE_CONSTRAINT_FAILED = 'P2002';
 
 app.post('/jobs', async (req, res) => {
   const {
@@ -15,7 +16,6 @@ app.post('/jobs', async (req, res) => {
     socialInsurance, headOfficeLocation, industry,
     representativePhoneNumber, representativeName, other
   } = req.body;
-  console.log(req.body)
   try {
     const job = await prisma.job.create({
       data: {
@@ -28,8 +28,14 @@ app.post('/jobs', async (req, res) => {
     });
     res.status(201).json(job);
   } catch (error) {
-    console.error("Error saving job to the database:", error);
-    res.status(500).json({ error: "Internal server error" });
+    if (error.code === UNIQUE_CONSTRAINT_FAILED) {
+      console.error("Error saving job to the database: Unique constraint failed on the fields: (`id`)", error.code);
+      res.status(400).json({ error: "A job with this ID already exists." });
+    } else {
+      // その他のエラー
+      console.error("Error saving job to the database:", error);
+      res.status(500).json({ error: "Error saving job to the database" });
+    }
   }
 });
 

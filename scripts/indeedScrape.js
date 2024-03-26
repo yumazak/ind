@@ -54,7 +54,7 @@ const getJobType = () => {
     const jobType = jobTypeSpanElements[1].textContent.split(" -  ")[1]
     return jobType
   } catch (error) {
-    console.error("勤務形態を取得できませんでした")
+    // console.error("勤務形態を取得できませんでした")
     return ""
   }
 }
@@ -72,7 +72,7 @@ const getJobDescription = () => {
     const jobDescription = nextSiblingDiv.firstChild.children[1].innerText;
     return jobDescription;
   } catch (error) {
-    console.error("仕事内容を取得できませんでした", error);
+    // console.error("仕事内容を取得できませんでした", error);
     return '';
   }
 }
@@ -81,7 +81,7 @@ const getRequiredSkills = () => {
   try {
     return document.getElementsByClassName("jobsearch-JobComponent-description")[0].children[8].firstChild.children[1].innerText
   } catch (error) {
-    console.error("求める人材を取得できませんでした。", error)
+    // console.error("求める人材を取得できませんでした。", error)
     return ''
   }
 }
@@ -90,7 +90,7 @@ const getAppealPoints = () => {
   try {
     return document.getElementsByClassName("jobsearch-JobComponent-description")[0].children[9].firstChild.children[1].innerText
   } catch (error) {
-    console.error("アピールポイントを取得できませんでした。", error)
+    // console.error("アピールポイントを取得できませんでした。", error)
     return ''
   }
 }
@@ -166,7 +166,7 @@ const getInfos = () => {
     })
     return jobData
   } catch (error) {
-    console.error(`取得できませんでした。`, error)
+    // console.error(`取得できませんでした。`, error)
     return ''
   }
 }
@@ -207,7 +207,7 @@ const postData = async (jobData) => {
     })
     return response
   } catch (error) {
-    console.error("データを保存できませんでした", jobData, error)
+    console.error("POSTに失敗しました", error)
     return ""
   }
 
@@ -268,8 +268,9 @@ const jumpToNextPage = () => {
           await sleep(1000);
           const jobData = await getJobDetail()
           jobData.id = id
-          console.log(jobData)
           const res = await postData(jobData)
+          if (res.status == 400) console.error("保存済みのジョブです")
+          if (res.status == 500) console.error("予期しないエラーが発生しました")
         }
       }
       jumpToNextPage()
